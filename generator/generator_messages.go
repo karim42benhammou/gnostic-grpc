@@ -83,13 +83,36 @@ func validateQueryParameter(field *surface_v1.Field) {
 
 }
 
+func bPtr(s bool) *bool {
+	return &s
+}
 func addFieldDescriptor(message *dpb.DescriptorProto, surfaceField *surface_v1.Field, idx int, packageName string) {
 	count := int32(idx + 1)
 	fieldDescriptor := &dpb.FieldDescriptorProto{Number: &count, Name: &surfaceField.FieldName}
 	fieldDescriptor.Type = getFieldDescriptorType(surfaceField.NativeType, surfaceField.EnumValues)
 	fieldDescriptor.Label = getFieldDescriptorLabel(surfaceField)
 	fieldDescriptor.TypeName = getFieldDescriptorTypeName(*fieldDescriptor.Type, surfaceField, packageName)
-
+	//fieldDescriptor.Options = &dpb.FieldOptions{
+	//	UninterpretedOption: []*dpb.UninterpretedOption{
+	//		{
+	//			Name:             []*dpb.UninterpretedOption_NamePart{
+	//				{
+	//					NamePart:    ptr("NamePart1"),
+	//				},
+	//			},
+	//			StringValue:      []byte("Options"),
+	//		},
+	//		{
+	//			Name:             []*dpb.UninterpretedOption_NamePart{
+	//				{
+	//					NamePart:    ptr("NamePart2"),
+	//				},
+	//			},
+	//			StringValue:      []byte("Options"),
+	//		},
+	//	},
+	//}
+	//
 	addMapDescriptorIfNecessary(surfaceField, fieldDescriptor, message)
 
 	message.Field = append(message.Field, fieldDescriptor)
@@ -151,6 +174,10 @@ func addMapDescriptorIfNecessary(f *surface_v1.Field, fieldDescriptor *dpb.Field
 		fieldDescriptor.TypeName = mapDescriptor.Name
 		message.NestedType = append(message.NestedType, mapDescriptor)
 	}
+}
+
+func ptr(s string) *string {
+	return &s
 }
 
 // buildMapDescriptor builds the necessary descriptor to render a map. (https://developers.google.com/protocol-buffers/docs/proto3#maps)

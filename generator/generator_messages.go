@@ -92,27 +92,36 @@ func addFieldDescriptor(message *dpb.DescriptorProto, surfaceField *surface_v1.F
 	fieldDescriptor.Type = getFieldDescriptorType(surfaceField.NativeType, surfaceField.EnumValues)
 	fieldDescriptor.Label = getFieldDescriptorLabel(surfaceField)
 	fieldDescriptor.TypeName = getFieldDescriptorTypeName(*fieldDescriptor.Type, surfaceField, packageName)
-	//fieldDescriptor.Options = &dpb.FieldOptions{
-	//	UninterpretedOption: []*dpb.UninterpretedOption{
-	//		{
-	//			Name:             []*dpb.UninterpretedOption_NamePart{
-	//				{
-	//					NamePart:    ptr("NamePart1"),
-	//				},
-	//			},
-	//			StringValue:      []byte("Options"),
-	//		},
-	//		{
-	//			Name:             []*dpb.UninterpretedOption_NamePart{
-	//				{
-	//					NamePart:    ptr("NamePart2"),
-	//				},
-	//			},
-	//			StringValue:      []byte("Options"),
-	//		},
-	//	},
-	//}
-	//
+	if surfaceField.Type == "uuid" {
+		fieldDescriptor.Options = &dpb.FieldOptions{
+			UninterpretedOption: []*dpb.UninterpretedOption{
+				{
+					Name: []*dpb.UninterpretedOption_NamePart{
+						{
+							NamePart: ptr("Tag"),
+						},
+					},
+					StringValue: []byte("uuid"),
+				},
+			},
+		}
+
+	}
+	if surfaceField.Type == "taga" {
+		fieldDescriptor.Options = &dpb.FieldOptions{
+			UninterpretedOption: []*dpb.UninterpretedOption{
+				{
+					Name: []*dpb.UninterpretedOption_NamePart{
+						{
+							NamePart: ptr("Tag"),
+						},
+					},
+					StringValue: []byte("uuid"),
+				},
+			},
+		}
+
+	}
 	addMapDescriptorIfNecessary(surfaceField, fieldDescriptor, message)
 
 	message.Field = append(message.Field, fieldDescriptor)

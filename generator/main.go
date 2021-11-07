@@ -31,6 +31,7 @@ func RunProtoGenerator(env *plugins.Environment) {
 	fileName := getFilenameWithoutFileExtension(env)
 	packageName, err := resolvePackageName(fileName)
 	env.RespondAndExitIfError(err)
+	packageName = "42p/api"
 
 	inputDocumentType := env.Request.Models[0].TypeUrl
 	for _, model := range env.Request.Models {

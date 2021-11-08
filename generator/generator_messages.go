@@ -29,11 +29,20 @@ func buildAllMessageDescriptors(renderer *Renderer) (messageDescriptors []*dpb.D
 			}
 			if isRequestParameter(surfaceType) {
 				if !validateRequestParameter(surfaceField) {
-					format = surfaceField.NativeType
+					format = surfaceField.Type
 					surfaceField.Format = "string"
 					surfaceField.Type = "string"
 					surfaceField.NativeType = "string"
 				}
+			}
+			if strings.HasPrefix(surfaceField.Type, "sec-") {
+				format = surfaceField.Type
+				surfaceField.Format = "string"
+				surfaceField.Type = "string"
+				surfaceField.NativeType = "string"
+			}
+			if surfaceField.Type == "uuid" {
+				format = "sec-uuid"
 			}
 
 			addFieldDescriptor(message, surfaceField, i, renderer.Package, format)
@@ -105,9 +114,9 @@ func addFieldDescriptor(message *dpb.DescriptorProto, surfaceField *surface_v1.F
 			UninterpretedOption: []*dpb.UninterpretedOption{
 				{
 					Name: []*dpb.UninterpretedOption_NamePart{
-						{NamePart: ptr("(gogoproto.customtype)")},
+						{NamePart: ptr("json_name")},
 					},
-					StringValue: []byte("Sec" + format),
+					AggregateValue: ptr(`"` + surfaceField.FieldName + `"]; // @gotags: valid:"` + format + `" `),
 				},
 			},
 		}

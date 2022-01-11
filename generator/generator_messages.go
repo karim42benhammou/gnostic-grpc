@@ -30,7 +30,7 @@ func isScalarType(surfaceType *surface_v1.Type) bool {
 		surfaceType.Fields[0].Position != surface_v1.Position_QUERY &&
 		surfaceType.Fields[0].Position != surface_v1.Position_PATH &&
 		surfaceType.Fields[0].EnumValues == nil &&
-		surfaceType.Fields[0].Kind == surface_v1.FieldKind_SCALAR
+		(surfaceType.Fields[0].Kind == surface_v1.FieldKind_SCALAR || surfaceType.Fields[0].Kind == surface_v1.FieldKind_ARRAY)
 }
 
 func wrapperType(t string, format string) string {
@@ -119,6 +119,13 @@ func buildAllMessageDescriptors(renderer *Renderer) (messageDescriptors []*dpb.D
 							surfaceField.Kind = surface_v1.FieldKind_ARRAY
 							surfaceField.Name = ts.Fields[0].Name
 							surfaceField.FieldName = ts.Fields[0].Name
+						} else if ts.Fields[0].Kind == surface_v1.FieldKind_REFERENCE {
+							querySchema := getType(renderer.Model.Types, toCamelCase(ts.Fields[0].Type))
+							wt := wrapperType(querySchema.Fields[0].NativeType, querySchema.Fields[0].Format)
+							surfaceField.NativeType = wt
+							surfaceField.Name = ts.Fields[0].Name
+							surfaceField.FieldName = ts.Fields[0].FieldName
+							prefix = false
 						} else {
 							surfaceField.Name = ts.Fields[0].Name
 							surfaceField.FieldName = ts.Fields[0].Name
@@ -134,6 +141,9 @@ func buildAllMessageDescriptors(renderer *Renderer) (messageDescriptors []*dpb.D
 						prefix = false
 					} else {
 						surfaceField.NativeType = ts.Fields[0].NativeType
+						if ts.Fields[0].Kind == surface_v1.FieldKind_ARRAY {
+							surfaceField.Kind = ts.Fields[0].Kind
+						}
 					}
 					surfaceField.Format = ts.Fields[0].Format
 				}
